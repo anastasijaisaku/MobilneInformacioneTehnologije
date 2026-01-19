@@ -9,7 +9,7 @@ import 'package:biblioteka/screens/inner_screen/product_details.dart';
 import 'package:biblioteka/screens/inner_screen/viewed_recently.dart';
 import 'package:biblioteka/screens/inner_screen/wishlist.dart';
 import 'package:biblioteka/screens/root_screen.dart';
-//import 'package:skriptarnicaftn/screens/root_screen.dart';
+//import 'package:biblioteka/screens/root_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<ThemeProvider>( builder: (context, themeProvider, child) {
           return MaterialApp(
-              title: 'FTN skriptarnica',
+              title: ' Biblioteka',
               theme: Styles.themeData(isDarkTheme: themeProvider.getIsDarkTheme, context:context),
               //home: const RootScreen(),
               home: const LoginScreen(),

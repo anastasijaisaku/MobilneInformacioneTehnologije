@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(width: 12),
                     const Text(
-                      "FTN Script Store",
+                      "Biblioteka",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,

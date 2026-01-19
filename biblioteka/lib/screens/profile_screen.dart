@@ -68,8 +68,8 @@ class ProfileScreen extends StatelessWidget {
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TitelesTextWidget(label: "Masa Saranovic"),
-                        SubtitleTextWidget(label: "masa.saranovic@uns.ac.rs")
+                        TitelesTextWidget(label: "Anastasija Isaku"),
+                        SubtitleTextWidget(label: "anastasijaisaku7@gmail.com")
                       ],
                     )
                   ],

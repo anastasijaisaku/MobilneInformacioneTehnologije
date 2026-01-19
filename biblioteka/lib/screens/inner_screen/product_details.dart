@@ -31,7 +31,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           icon: const Icon(Icons.arrow_back_ios, size: 20),
         ),
         // automaticallyImplyLeading: false,
-        title: const Text("FTN Script Store"),
+        title: const Text("Biblioteka"),
       ),
       body: SingleChildScrollView(
         child: Column(

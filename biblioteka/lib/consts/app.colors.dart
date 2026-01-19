@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-
-
-class AppColors{
-  static const Color lightScaffoldColor= Colors.white;
-  static const Color lightPrimary = Color(0xff44bccc);
-  static const Color lightCardColor = Color(0xff2e7b86);
-  static const Color darkScaffoldColor = Color(0xFF121212);
-  static const Color darkPrimary = Color(0xff2e7b86);
-
+class AppColors {
+  // Light theme
+  static const Color lightScaffoldColor = Color(0xFFF7F3E9); // krem pozadina
+  static const Color lightPrimary = Color(0xFF1B4332);       // tamno zelena
+  static const Color lightCardColor = Color(0xFFFFFFFF);    // bela / kartice
+  // Dark theme
+  static const Color darkScaffoldColor = Color(0xFF121212); // tamna pozadina
+  static const Color darkPrimary = Color(0xFF1B4332);       // tamno zelena (akcenat)
 }
+
 

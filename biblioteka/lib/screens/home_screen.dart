@@ -19,7 +19,7 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Image.asset("${AssetsManager.imagePath}/logo.png"),
         ),
-        title: const Text("FTN Script Store"),
+        title: const Text("Biblioteka"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
