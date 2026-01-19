@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:skriptarnicaftn/consts/app.colors.dart';
-import 'package:skriptarnicaftn/widgets/subtitle_text.dart';
-import 'package:skriptarnicaftn/widgets/title_text.dart';
+import 'package:biblioteka/consts/app.colors.dart';
+import 'package:biblioteka/widgets/subtitle_text.dart';
+import 'package:biblioteka/widgets/title_text.dart';
 
 
 class EmptyBagWidget extends StatelessWidget {

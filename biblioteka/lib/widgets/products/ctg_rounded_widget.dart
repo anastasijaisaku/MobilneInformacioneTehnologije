@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skriptarnicaftn/widgets/subtitle_text.dart';
+import 'package:biblioteka/widgets/subtitle_text.dart';
 
 class CategoryRoundedWidget extends StatelessWidget {
   const CategoryRoundedWidget({

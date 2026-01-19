@@ -1,12 +1,12 @@
 
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
-import 'package:skriptarnicaftn/consts/app.colors.dart';
-import 'package:skriptarnicaftn/consts/app_constants.dart';
-import 'package:skriptarnicaftn/screens/inner_screen/product_details.dart';
-import 'package:skriptarnicaftn/widgets/products/heart_btn.dart';
-import 'package:skriptarnicaftn/widgets/subtitle_text.dart';
-import 'package:skriptarnicaftn/widgets/title_text.dart';
+import 'package:biblioteka/consts/app.colors.dart';
+import 'package:biblioteka/consts/app_constants.dart';
+import 'package:biblioteka/screens/inner_screen/product_details.dart';
+import 'package:biblioteka/widgets/products/heart_btn.dart';
+import 'package:biblioteka/widgets/subtitle_text.dart';
+import 'package:biblioteka/widgets/title_text.dart';
 
 class ProductWidget extends StatefulWidget {
   const ProductWidget({super.key});
