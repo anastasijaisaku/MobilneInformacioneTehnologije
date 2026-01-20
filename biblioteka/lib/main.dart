@@ -1,8 +1,11 @@
+import 'package:biblioteka/screens/resevations/reservations_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:biblioteka/consts/theme_data.dart';
 import 'package:biblioteka/providers/theme_provider.dart';
 import 'package:biblioteka/providers/loan_provider.dart';
+import 'package:biblioteka/providers/reservation_provider.dart';
+import 'package:biblioteka/providers/review_provider.dart';
 import 'package:biblioteka/screens/auth/login.dart';
 import 'package:biblioteka/screens/auth/register.dart';
 import 'package:biblioteka/screens/inner_screen/orders/orders_screen.dart';
@@ -23,12 +26,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) {
-          return ThemeProvider();
-        }),
-        ChangeNotifierProvider(create: (_) {
-          return LoanProvider();
-        }),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LoanProvider()),
+        ChangeNotifierProvider(create: (_) => ReservationProvider()),
+        ChangeNotifierProvider(create: (_) => ReviewProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
@@ -50,6 +51,8 @@ class MyApp extends StatelessWidget {
               LoginScreen.routeName: (context) => const LoginScreen(),
               OrdersScreen.routeName: (context) => const OrdersScreen(),
               LoansScreen.routName: (context) => const LoansScreen(),
+              ReservationsScreen.routName: (context) =>
+                  const ReservationsScreen(),
             },
           );
         },

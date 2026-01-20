@@ -1,5 +1,6 @@
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
 import 'package:flutter/material.dart';
+import 'package:biblioteka/consts/app_constants.dart';
 import 'package:biblioteka/services/assets_manager.dart';
 import 'package:biblioteka/widgets/empty_bag.dart';
 import 'package:biblioteka/widgets/products/product_widget.dart';
@@ -8,7 +9,9 @@ import 'package:biblioteka/widgets/title_text.dart';
 class ViewedRecentlyScreen extends StatelessWidget {
   static const routName = "/ViewedRecentlyScreen";
   const ViewedRecentlyScreen({super.key});
+
   final bool isEmpty = false;
+
   @override
   Widget build(BuildContext context) {
     return isEmpty
@@ -17,7 +20,7 @@ class ViewedRecentlyScreen extends StatelessWidget {
               imagePath: "${AssetsManager.imagePath}/bag/checkout.png",
               title: "No viewed products yet",
               subtitle:
-                  "Looks like your cart is empty add something and make me happy",
+                  "Looks like you haven't viewed any books yet.\nStart exploring to see them here.",
               buttonText: "Shop now",
             ),
           )
@@ -25,8 +28,9 @@ class ViewedRecentlyScreen extends StatelessWidget {
             appBar: AppBar(
               leading: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Image.asset(
-                  "${AssetsManager.imagePath}/bag/checkout.png",
+                child: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  backgroundImage: AssetImage(AssetsManager.logo),
                 ),
               ),
               title: const TitelesTextWidget(label: "Viewed recently (6)"),
@@ -41,9 +45,16 @@ class ViewedRecentlyScreen extends StatelessWidget {
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
               builder: (context, index) {
-                return const ProductWidget();
+                return ProductWidget(
+                  bookId: "recent_book_$index",
+                  bookTitle: "Recently Viewed Book ${index + 1}",
+                  bookImage: AppConstants.imageUrl,
+                  bookPrice: "1200 RSD",
+                  bookCategory: "Books",
+                  bookDescription: "Book description " * 6,
+                );
               },
-              itemCount: 200,
+              itemCount: 6,
               crossAxisCount: 2,
             ),
           );

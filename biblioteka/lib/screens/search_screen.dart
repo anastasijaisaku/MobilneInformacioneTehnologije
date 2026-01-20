@@ -1,6 +1,7 @@
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:biblioteka/consts/app.colors.dart';
+import 'package:biblioteka/consts/app_constants.dart';
 import 'package:biblioteka/services/assets_manager.dart';
 import 'package:biblioteka/widgets/products/product_widget.dart';
 //import 'package:biblioteka/widgets/title_text.dart';
@@ -75,7 +76,14 @@ class _SearchScreenState extends State<SearchScreen> {
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
                   builder: (context, index) {
-                    return const ProductWidget();
+                    return ProductWidget(
+                      bookId: "book_search_$index",
+                      bookTitle: "Book ${index + 1}",
+                      bookImage: AppConstants.imageUrl,
+                      bookPrice: "1200 RSD",
+                      bookCategory: "Books",
+                      bookDescription: "Book description " * 6,
+                    );
                   },
                   itemCount: 200,
                   crossAxisCount: 2,

@@ -1,3 +1,4 @@
+import 'package:biblioteka/screens/resevations/reservations_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:provider/provider.dart';
@@ -116,13 +117,22 @@ class ProfileScreen extends StatelessWidget {
                     },
                   ),
                   CustomListTile(
-                    imagePath:
-                        "${AssetsManager.imagePath}/categories/book.png",
+                    imagePath: "${AssetsManager.imagePath}/categories/book.png",
                     text: "My loans",
                     function: () {
                       Navigator.pushNamed(context, LoansScreen.routName);
                     },
                   ),
+
+                  // ✅ ADDED: My reservations
+                  CustomListTile(
+                    imagePath: "${AssetsManager.imagePath}/categories/book.png",
+                    text: "My reservations",
+                    function: () {
+                      Navigator.pushNamed(context, ReservationsScreen.routName);
+                    },
+                  ),
+
                   CustomListTile(
                     imagePath: "${AssetsManager.imagePath}/address.png",
                     text: "Address",

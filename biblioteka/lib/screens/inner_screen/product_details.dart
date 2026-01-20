@@ -7,6 +7,9 @@ import 'package:biblioteka/widgets/subtitle_text.dart';
 import 'package:biblioteka/widgets/title_text.dart';
 import 'package:provider/provider.dart';
 import 'package:biblioteka/providers/loan_provider.dart';
+import 'package:biblioteka/providers/reservation_provider.dart';
+import 'package:biblioteka/providers/review_provider.dart';
+import 'package:biblioteka/widgets/reviews/rating_stars.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   static const routName = "/ProductDetailsScreen";
@@ -37,6 +40,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     final loanProvider = Provider.of<LoanProvider>(context);
     final bool alreadyBorrowed = loanProvider.isBookBorrowed(bookId);
 
+    final reservationProvider = Provider.of<ReservationProvider>(context);
+    final bool alreadyReserved = reservationProvider.isBookReserved(bookId);
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -48,7 +54,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           },
           icon: const Icon(Icons.arrow_back_ios, size: 20),
         ),
-        title: const Text("Library"),
+        title: const Text("Biblioteka"),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -161,9 +167,53 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               color: Colors.white,
                             ),
                             label: Text(
-                              alreadyBorrowed
-                                  ? "Already borrowed"
-                                  : "Borrow",
+                              alreadyBorrowed ? "Already borrowed" : "Borrow",
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // RESERVE (5 days)
+                        SizedBox(
+                          width: double.infinity,
+                          height: kBottomNavigationBarHeight - 10,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: alreadyReserved
+                                  ? Colors.grey
+                                  : AppColors.darkPrimary.withOpacity(0.75),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                            ),
+                            onPressed: alreadyReserved
+                                ? null
+                                : () {
+                                    reservationProvider.reserveBook(
+                                      bookId: bookId,
+                                      bookTitle: bookTitle,
+                                      bookImage: bookImage,
+                                      days: 5,
+                                    );
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Book reserved (expires in 5 days)",
+                                        ),
+                                      ),
+                                    );
+                                  },
+                            icon: const Icon(
+                              Icons.bookmark_added_outlined,
+                              color: Colors.white,
+                            ),
+                            label: Text(
+                              alreadyReserved
+                                  ? "Already reserved"
+                                  : "Reserve (5 days)",
                               style: const TextStyle(color: Colors.white),
                             ),
                           ),
@@ -182,12 +232,203 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
                   const SizedBox(height: 15),
                   SubtitleTextWidget(label: bookDescription),
+
+                  // REVIEWS SECTION
+                 
+                  const SizedBox(height: 18),
+
+                  Consumer<ReviewProvider>(
+                    builder: (context, reviewProvider, _) {
+                      final avg = reviewProvider.averageRating(bookId);
+                      final count = reviewProvider.reviewsCount(bookId);
+                      final reviews = reviewProvider.reviewsByBook(bookId);
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const TitelesTextWidget(label: "Reviews"),
+                              Row(
+                                children: [
+                                  RatingStars(rating: avg, size: 18),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    avg == 0 ? "No rating" : avg.toStringAsFixed(1),
+                                    style: const TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text("($count)"),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+
+                          if (reviews.isEmpty)
+                            const SubtitleTextWidget(
+                              label: "No reviews yet. Be the first one!",
+                            )
+                          else
+                            Column(
+                              children: reviews.take(3).map((r) {
+                                return Container(
+                                  width: double.infinity,
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).cardColor,
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(color: Colors.black12),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              r.userName,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                          RatingStars(
+                                            rating: r.rating.toDouble(),
+                                            size: 16,
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(r.comment),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+
+                          const SizedBox(height: 8),
+
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () async {
+                                final result = await showDialog<Map<String, dynamic>>(
+                                  context: context,
+                                  builder: (_) => const _AddReviewDialog(),
+                                );
+
+                                if (result == null) return;
+
+                                reviewProvider.addReview(
+                                  bookId: bookId,
+                                  userName: result["name"] as String,
+                                  rating: result["rating"] as int,
+                                  comment: result["comment"] as String,
+                                );
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("Review added")),
+                                );
+                              },
+                              icon: const Icon(Icons.rate_review_outlined),
+                              label: const Text("Write a review"),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _AddReviewDialog extends StatefulWidget {
+  const _AddReviewDialog();
+
+  @override
+  State<_AddReviewDialog> createState() => _AddReviewDialogState();
+}
+
+class _AddReviewDialogState extends State<_AddReviewDialog> {
+  final nameCtrl = TextEditingController();
+  final commentCtrl = TextEditingController();
+  int rating = 5;
+
+  @override
+  void dispose() {
+    nameCtrl.dispose();
+    commentCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Write a review"),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(
+                hintText: "Your name (optional)",
+              ),
+            ),
+            const SizedBox(height: 10),
+            DropdownButtonFormField<int>(
+              value: rating,
+              items: const [
+                DropdownMenuItem(value: 5, child: Text("5 - Excellent")),
+                DropdownMenuItem(value: 4, child: Text("4 - Very good")),
+                DropdownMenuItem(value: 3, child: Text("3 - Good")),
+                DropdownMenuItem(value: 2, child: Text("2 - Fair")),
+                DropdownMenuItem(value: 1, child: Text("1 - Poor")),
+              ],
+              onChanged: (v) => setState(() => rating = v ?? 5),
+              decoration: const InputDecoration(
+                labelText: "Rating",
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: commentCtrl,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                hintText: "Write your comment...",
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Cancel"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            final comment = commentCtrl.text.trim();
+            if (comment.isEmpty) return;
+
+            Navigator.pop(context, {
+              "name": nameCtrl.text,
+              "rating": rating,
+              "comment": comment,
+            });
+          },
+          child: const Text("Submit"),
+        ),
+      ],
     );
   }
 }
