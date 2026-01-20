@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:biblioteka/consts/app.colors.dart';
 import 'package:biblioteka/services/assets_manager.dart';
 import 'package:biblioteka/widgets/products/product_widget.dart';
-//import 'package:skriptarnicaftn/widgets/title_text.dart';
+//import 'package:biblioteka/widgets/title_text.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
