@@ -49,8 +49,6 @@ class MyApp extends StatelessWidget {
               RegisterScreen.routName: (context) => const RegisterScreen(),
               LoginScreen.routeName: (context) => const LoginScreen(),
               OrdersScreen.routeName: (context) => const OrdersScreen(),
-
-              // ruta za Moje pozajmice
               LoansScreen.routName: (context) => const LoansScreen(),
             },
           );
