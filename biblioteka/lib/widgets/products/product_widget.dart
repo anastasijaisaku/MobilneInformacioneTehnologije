@@ -1,4 +1,3 @@
-
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:biblioteka/consts/app.colors.dart';
@@ -18,26 +17,41 @@ class ProductWidget extends StatefulWidget {
 class _ProductWidgetState extends State<ProductWidget> {
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.of(context).size;
+
+    
+    final String bookId = "book_${DateTime.now().microsecondsSinceEpoch}";
+    final String bookTitle = "Title " * 5;
+    final String bookImage = AppConstants.imageUrl;
+
     return Padding(
       padding: const EdgeInsets.all(0.0),
       child: GestureDetector(
         onTap: () async {
-            Navigator.pushNamed(context, ProductDetailsScreen.routName);
-          },
+          Navigator.pushNamed(
+            context,
+            ProductDetailsScreen.routName,
+            arguments: {
+              "bookId": bookId,
+              "bookTitle": bookTitle,
+              "bookImage": bookImage,
+              "bookPrice": "1200 RSD",
+              "bookCategory": "Knjige",
+              "bookDescription": "Opis knjige " * 8,
+            },
+          );
+        },
         child: Column(
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12.0),
               child: FancyShimmerImage(
-                imageUrl: AppConstants.imageUrl,
+                imageUrl: bookImage,
                 height: size.height * 0.22,
                 width: double.infinity,
               ),
             ),
-            const SizedBox(
-              height: 12.0,
-            ),
+            const SizedBox(height: 12.0),
             Padding(
               padding: const EdgeInsets.all(2.0),
               child: Row(
@@ -45,22 +59,19 @@ class _ProductWidgetState extends State<ProductWidget> {
                   Flexible(
                     flex: 5,
                     child: TitelesTextWidget(
-                      label: "Title " * 10,
+                      label: bookTitle,
                       fontSize: 18,
                       maxLines: 2,
                     ),
                   ),
                   const Flexible(
                     flex: 2,
-                    child: HeartButtonWidget()
-                    
+                    child: HeartButtonWidget(),
                   ),
                 ],
               ),
             ),
-            const SizedBox(
-              height: 6.0,
-            ),
+            const SizedBox(height: 6.0),
             Padding(
               padding: const EdgeInsets.all(2.0),
               child: Row(
@@ -92,9 +103,7 @@ class _ProductWidgetState extends State<ProductWidget> {
                 ],
               ),
             ),
-            const SizedBox(
-              height: 12.0,
-            ),
+            const SizedBox(height: 12.0),
           ],
         ),
       ),

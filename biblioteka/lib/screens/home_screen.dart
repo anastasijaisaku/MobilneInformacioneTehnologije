@@ -18,7 +18,7 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Image.asset("${AssetsManager.imagePath}/logo.png"),
         ),
-        title: const Text("Biblioteka"),
+        title: const Text("Library"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -54,18 +54,20 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 18),
 
-              // CATEGORIES (elegant wrap "chips")
-              const TitelesTextWidget(label: "Kategorije"),
+              // CATEGORIES
+              const TitelesTextWidget(label: "Categories"),
               const SizedBox(height: 12),
 
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
-                children: List.generate(AppConstants.categoriesList.length, (index) {
+                children:
+                    List.generate(AppConstants.categoriesList.length, (index) {
                   final ctg = AppConstants.categoriesList[index];
 
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(14),
@@ -98,8 +100,8 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 22),
 
-              // RECOMMENDED (simple, not complicated)
-              const TitelesTextWidget(label: "Preporučeno"),
+              // RECOMMENDED
+              const TitelesTextWidget(label: "Recommended"),
               const SizedBox(height: 12),
 
               GridView.builder(
@@ -144,7 +146,7 @@ class HomeScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "Knjiga ${index + 1}",
+                                "Book ${index + 1}",
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
@@ -154,7 +156,7 @@ class HomeScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                "Autor",
+                                "Author",
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -179,5 +181,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
-

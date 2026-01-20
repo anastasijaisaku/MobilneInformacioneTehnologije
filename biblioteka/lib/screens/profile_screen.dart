@@ -118,7 +118,7 @@ class ProfileScreen extends StatelessWidget {
                   // Moje pozajmice
                   CustomListTile(
                     imagePath: "${AssetsManager.imagePath}/categories/book.png",
-                    text: "Moje pozajmice",
+                    text: "My loans",
                     function: () {
                       Navigator.pushNamed(context, LoansScreen.routName);
                     },

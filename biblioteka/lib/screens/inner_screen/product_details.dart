@@ -1,4 +1,3 @@
-import 'package:biblioteka/services/assets_manager.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:biblioteka/consts/app.colors.dart';
@@ -22,10 +21,18 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
-    // Za sada placeholder (kasnije povezujemo sa pravim podacima knjige)
-    final String bookId = "book_1";
-    final String bookTitle = "Title" * 6;
-    final String bookImage = "${AssetsManager.imagePath}/categories/book.png";
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+
+    final String bookId = (args?["bookId"] ?? "book_unknown").toString();
+    final String bookTitle = (args?["bookTitle"] ?? ("Title" * 6)).toString();
+    final String bookImage =
+        (args?["bookImage"] ?? AppConstants.imageUrl).toString();
+    final String bookPrice = (args?["bookPrice"] ?? "1550.00 RSD").toString();
+    final String bookCategory =
+        (args?["bookCategory"] ?? "Category").toString();
+    final String bookDescription =
+        (args?["bookDescription"] ?? ("Book description " * 10)).toString();
 
     final loanProvider = Provider.of<LoanProvider>(context);
     final bool alreadyBorrowed = loanProvider.isBookBorrowed(bookId);
@@ -41,13 +48,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           },
           icon: const Icon(Icons.arrow_back_ios, size: 20),
         ),
-        title: const Text("Biblioteka"),
+        title: const Text("Library"),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             FancyShimmerImage(
-              imageUrl: AppConstants.imageUrl,
+              imageUrl: bookImage,
               height: size.height * 0.38,
               width: double.infinity,
             ),
@@ -70,8 +77,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ),
                       ),
                       const SizedBox(width: 20),
-                      const SubtitleTextWidget(
-                        label: "1550.00 RSD",
+                      SubtitleTextWidget(
+                        label: bookPrice,
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color: AppColors.darkPrimary,
@@ -80,7 +87,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // (Pozajmi)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
@@ -92,7 +98,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             ),
                             const SizedBox(width: 12),
 
-                            // KUPI
+                            // BUY
                             Expanded(
                               child: SizedBox(
                                 height: kBottomNavigationBarHeight - 10,
@@ -109,7 +115,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                     color: Colors.white,
                                   ),
                                   label: const Text(
-                                    "Kupi",
+                                    "Buy",
                                     style: TextStyle(color: Colors.white),
                                   ),
                                 ),
@@ -119,7 +125,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ),
                         const SizedBox(height: 12),
 
-                        // POZAJMI
+                        // BORROW
                         SizedBox(
                           width: double.infinity,
                           height: kBottomNavigationBarHeight - 10,
@@ -145,7 +151,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
-                                          "Knjiga je pozajmljena (rok: 14 dana)",
+                                          "Book borrowed (due in 14 days)",
                                         ),
                                       ),
                                     );
@@ -155,7 +161,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               color: Colors.white,
                             ),
                             label: Text(
-                              alreadyBorrowed ? "Već pozajmljeno" : "Pozajmi",
+                              alreadyBorrowed
+                                  ? "Already borrowed"
+                                  : "Borrow",
                               style: const TextStyle(color: Colors.white),
                             ),
                           ),
@@ -165,15 +173,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
 
                   const SizedBox(height: 20),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      TitelesTextWidget(label: "O knjizi"),
-                      SubtitleTextWidget(label: "Kategorija"),
+                      const TitelesTextWidget(label: "About this book"),
+                      SubtitleTextWidget(label: bookCategory),
                     ],
                   ),
                   const SizedBox(height: 15),
-                  SubtitleTextWidget(label: "Opis knjige " * 10),
+                  SubtitleTextWidget(label: bookDescription),
                 ],
               ),
             ),

@@ -17,11 +17,11 @@ class LoansScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Moje pozajmice"),
+        title: const Text("My Loans"),
       ),
       body: loans.isEmpty
           ? const Center(
-              child: Text("Nema pozajmljenih knjiga."),
+              child: Text("No borrowed books."),
             )
           : ListView.separated(
               padding: const EdgeInsets.all(12),
@@ -46,7 +46,8 @@ class LoansScreen extends StatelessWidget {
                           width: 52,
                           height: 52,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(Icons.menu_book_rounded, size: 40),
+                          errorBuilder: (_, __, ___) =>
+                              const Icon(Icons.menu_book_rounded, size: 40),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -58,17 +59,22 @@ class LoansScreen extends StatelessWidget {
                               loan.bookTitle,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontWeight: FontWeight.w700),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w700),
                             ),
                             const SizedBox(height: 6),
-                            Text("Pozajmljeno: ${_fmt(loan.loanDate)}"),
-                            Text("Vratiti do: ${_fmt(loan.dueDate)}"),
+                            Text("Borrowed on: ${_fmt(loan.loanDate)}"),
+                            Text("Due date: ${_fmt(loan.dueDate)}"),
                             const SizedBox(height: 6),
                             Text(
-                              loan.isReturned ? "Status: vraćeno" : "Status: aktivno",
+                              loan.isReturned
+                                  ? "Status: returned"
+                                  : "Status: active",
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                color: loan.isReturned ? Colors.grey : Colors.green,
+                                color: loan.isReturned
+                                    ? Colors.grey
+                                    : Colors.green,
                               ),
                             ),
                           ],
@@ -77,9 +83,11 @@ class LoansScreen extends StatelessWidget {
                       const SizedBox(width: 8),
                       if (!loan.isReturned)
                         IconButton(
-                          tooltip: "Označi kao vraćeno",
-                          onPressed: () => loanProvider.markReturned(loan.loanId),
-                          icon: const Icon(Icons.check_circle_outline),
+                          tooltip: "Mark as returned",
+                          onPressed: () =>
+                              loanProvider.markReturned(loan.loanId),
+                          icon:
+                              const Icon(Icons.check_circle_outline),
                         ),
                     ],
                   ),
