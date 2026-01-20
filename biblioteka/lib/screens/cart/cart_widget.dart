@@ -41,7 +41,7 @@ class CartWidget extends StatelessWidget {
                         SizedBox(
                           width: size.width * 0.6,
                           child: TitelesTextWidget(
-                            label: "Title" * 15,
+                            label: "Book",
                             maxLines: 2,
                           ),
                         ),
