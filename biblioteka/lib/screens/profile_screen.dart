@@ -6,6 +6,7 @@ import 'package:biblioteka/providers/theme_provider.dart';
 import 'package:biblioteka/screens/inner_screen/orders/orders_screen.dart';
 import 'package:biblioteka/screens/inner_screen/viewed_recently.dart';
 import 'package:biblioteka/screens/inner_screen/wishlist.dart';
+import 'package:biblioteka/screens/loans/loans_screen.dart';
 import 'package:biblioteka/services/assets_manager.dart';
 import 'package:biblioteka/services/my_app_functions.dart';
 import 'package:biblioteka/widgets/subtitle_text.dart';
@@ -27,7 +28,7 @@ class ProfileScreen extends StatelessWidget {
           "Profile Screen",
         ),
       ),
-       body: SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -37,9 +38,9 @@ class ProfileScreen extends StatelessWidget {
                 padding: EdgeInsets.all(18.0),
                 child: TitelesTextWidget(
                     label: "Please login to have unlimited access"),
+              ),
             ),
-          ),
-           Visibility(
+            Visibility(
               visible: true,
               child: Padding(
                 padding:
@@ -59,10 +60,10 @@ class ProfileScreen extends StatelessWidget {
                           image: NetworkImage(
                               "https://cdn.pixabay.com/photo/2017/11/10/05/48/user-2935527_1280.png"),
                           fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     const Column(
@@ -113,6 +114,16 @@ class ProfileScreen extends StatelessWidget {
                       Navigator.pushNamed(context, ViewedRecentlyScreen.routName);
                     },
                   ),
+
+                  // Moje pozajmice
+                  CustomListTile(
+                    imagePath: "${AssetsManager.imagePath}/categories/book.png",
+                    text: "Moje pozajmice",
+                    function: () {
+                      Navigator.pushNamed(context, LoansScreen.routName);
+                    },
+                  ),
+
                   CustomListTile(
                     imagePath: "${AssetsManager.imagePath}/address.png",
                     text: "Address",
@@ -120,12 +131,12 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(
                     height: 6,
-                ),
-                const Divider(),
-                const SizedBox(
-                  height: 10,
-                ),
-                const TitelesTextWidget(
+                  ),
+                  const Divider(),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const TitelesTextWidget(
                     label: "Settings",
                   ),
                   const SizedBox(
@@ -142,36 +153,37 @@ class ProfileScreen extends StatelessWidget {
                     onChanged: (value) {
                       themeProvider.setDarkTheme(themeValue: value);
                     },
-                )
-              ],
+                  )
+                ],
+              ),
             ),
-          ),
-          Center(
+            Center(
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.darkPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.0),
                   ),
-              ),
-              
+                ),
                 icon: const Icon(Icons.login, color: Colors.white),
                 label: const Text(
                   "Login",
                   style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () async {
+                  await MyAppFunctions.showErrorOrWarningDialog(
+                    context: context,
+                    subtitle: "Are you sure you want to signout",
+                    isError: false,
+                    fct: () {},
+                  );
+                },
               ),
-              onPressed: () async {
-                await MyAppFunctions.showErrorOrWarningDialog(context: context,
-                 subtitle: "Are you sure you want to signout",
-                 isError: false,
-                 fct: () {},
-                );
-              },
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
-    ));
+    );
   }
 }
 
