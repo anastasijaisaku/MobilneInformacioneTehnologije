@@ -16,9 +16,14 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Image.asset("${AssetsManager.imagePath}/logo.png"),
+          child: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            backgroundImage: AssetImage(
+              "${AssetsManager.imagePath}/logo.png",
+            ),
+          ),
         ),
-        title: const Text("Library"),
+        title: const Text("Biblioteka"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),

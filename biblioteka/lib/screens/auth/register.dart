@@ -101,9 +101,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Image.asset(
-                      "${AssetsManager.imagePath}/logo.png",
-                      height: 60,
+                    // ✅ IZMENJENO: okrugao logo
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: AssetImage(
+                        "${AssetsManager.imagePath}/logo.png",
+                      ),
                     ),
                     const SizedBox(width: 12),
                     const Text(
@@ -170,9 +174,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           prefixIcon: Icon(IconlyLight.message),
                         ),
                         onFieldSubmitted: (value) {
-                          FocusScope.of(
-                            context,
-                          ).requestFocus(_passwordFocusNode);
+                          FocusScope.of(context)
+                              .requestFocus(_passwordFocusNode);
                         },
                         validator: (value) {
                           return MyValidators.emailValidator(value);
@@ -202,9 +205,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         onFieldSubmitted: (value) async {
-                          FocusScope.of(
-                            context,
-                          ).requestFocus(_repeatPasswordFocusNode);
+                          FocusScope.of(context)
+                              .requestFocus(_repeatPasswordFocusNode);
                         },
                         validator: (value) {
                           return MyValidators.passwordValidator(value);

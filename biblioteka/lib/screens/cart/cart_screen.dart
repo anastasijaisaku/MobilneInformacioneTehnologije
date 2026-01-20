@@ -6,7 +6,9 @@ import 'package:biblioteka/widgets/empty_bag.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
+
   final bool isEmpty = false;
+
   @override
   Widget build(BuildContext context) {
     return isEmpty
@@ -24,7 +26,12 @@ class CartScreen extends StatelessWidget {
             appBar: AppBar(
               leading: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Image.asset("${AssetsManager.imagePath}/logo.png"),
+                child: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  backgroundImage: AssetImage(
+                    "${AssetsManager.imagePath}/logo.png",
+                  ),
+                ),
               ),
               title: const Text("Biblioteka"),
               actions: [
@@ -35,10 +42,11 @@ class CartScreen extends StatelessWidget {
               ],
             ),
             body: ListView.builder(
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  return const CartWidget();
-                }),
+              itemCount: 10,
+              itemBuilder: (context, index) {
+                return const CartWidget();
+              },
+            ),
           );
   }
 }

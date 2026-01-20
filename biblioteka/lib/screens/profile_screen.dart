@@ -18,15 +18,17 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Image.asset(AssetsManager.logo),
+          child: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            backgroundImage: AssetImage(AssetsManager.logo),
+          ),
         ),
-        title: const Text(
-          "Profile Screen",
-        ),
+        title: const Text("Profile Screen"),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -37,7 +39,8 @@ class ProfileScreen extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.all(18.0),
                 child: TitelesTextWidget(
-                    label: "Please login to have unlimited access"),
+                  label: "Please login to have unlimited access",
+                ),
               ),
             ),
             Visibility(
@@ -54,45 +57,40 @@ class ProfileScreen extends StatelessWidget {
                         shape: BoxShape.circle,
                         color: Theme.of(context).cardColor,
                         border: Border.all(
-                            color: Theme.of(context).colorScheme.surface,
-                            width: 3),
+                          color: Theme.of(context).colorScheme.surface,
+                          width: 3,
+                        ),
                         image: const DecorationImage(
                           image: NetworkImage(
-                              "https://cdn.pixabay.com/photo/2017/11/10/05/48/user-2935527_1280.png"),
+                            "https://cdn.pixabay.com/photo/2017/11/10/05/48/user-2935527_1280.png",
+                          ),
                           fit: BoxFit.cover,
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
+                    const SizedBox(width: 10),
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TitelesTextWidget(label: "Anastasija Isaku"),
-                        SubtitleTextWidget(label: "anastasijaisaku7@gmail.com")
+                        SubtitleTextWidget(
+                          label: "anastasijaisaku7@gmail.com",
+                        ),
                       ],
                     )
                   ],
                 ),
               ),
             ),
-            const SizedBox(
-              height: 15,
-            ),
+            const SizedBox(height: 15),
             Padding(
               padding: const EdgeInsets.all(14.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Divider(),
-                  const SizedBox(
-                    height: 10,
-                  ),
                   const TitelesTextWidget(label: "General"),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
                   CustomListTile(
                     imagePath: "${AssetsManager.imagePath}/bag/checkout.png",
                     text: "All Orders",
@@ -111,44 +109,37 @@ class ProfileScreen extends StatelessWidget {
                     imagePath: "${AssetsManager.imagePath}/profile/repeat.png",
                     text: "Viewed Recently",
                     function: () {
-                      Navigator.pushNamed(context, ViewedRecentlyScreen.routName);
+                      Navigator.pushNamed(
+                        context,
+                        ViewedRecentlyScreen.routName,
+                      );
                     },
                   ),
-
-                  // Moje pozajmice
                   CustomListTile(
-                    imagePath: "${AssetsManager.imagePath}/categories/book.png",
+                    imagePath:
+                        "${AssetsManager.imagePath}/categories/book.png",
                     text: "My loans",
                     function: () {
                       Navigator.pushNamed(context, LoansScreen.routName);
                     },
                   ),
-
                   CustomListTile(
                     imagePath: "${AssetsManager.imagePath}/address.png",
                     text: "Address",
                     function: () {},
                   ),
-                  const SizedBox(
-                    height: 6,
-                  ),
                   const Divider(),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  const TitelesTextWidget(
-                    label: "Settings",
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const TitelesTextWidget(label: "Settings"),
                   SwitchListTile(
                     secondary: Image.asset(
-                        "${AssetsManager.imagePath}/profile/night-mode.png",
-                        height: 34),
-                    title: Text(themeProvider.getIsDarkTheme
-                        ? "Dark Theme"
-                        : "Light Theme"),
+                      "${AssetsManager.imagePath}/profile/night-mode.png",
+                      height: 34,
+                    ),
+                    title: Text(
+                      themeProvider.getIsDarkTheme
+                          ? "Dark Theme"
+                          : "Light Theme",
+                    ),
                     value: themeProvider.getIsDarkTheme,
                     onChanged: (value) {
                       themeProvider.setDarkTheme(themeValue: value);
@@ -179,7 +170,7 @@ class ProfileScreen extends StatelessWidget {
                   );
                 },
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -194,19 +185,16 @@ class CustomListTile extends StatelessWidget {
     required this.text,
     required this.function,
   });
+
   final String imagePath, text;
   final Function function;
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () {
-        function();
-      },
+      onTap: () => function(),
       title: SubtitleTextWidget(label: text),
-      leading: Image.asset(
-        imagePath,
-        height: 34,
-      ),
+      leading: Image.asset(imagePath, height: 34),
       trailing: const Icon(IconlyLight.arrowRight2),
     );
   }

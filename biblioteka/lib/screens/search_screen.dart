@@ -8,13 +8,13 @@ import 'package:biblioteka/widgets/products/product_widget.dart';
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
-
-@override
+  @override
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
 class _SearchScreenState extends State<SearchScreen> {
   late TextEditingController searchTextController;
+
   @override
   void initState() {
     searchTextController = TextEditingController();
@@ -35,28 +35,30 @@ class _SearchScreenState extends State<SearchScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-            leading: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Image.asset("${AssetsManager.imagePath}/logo.png"),
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              backgroundImage: AssetImage(
+                "${AssetsManager.imagePath}/logo.png",
+              ),
             ),
-            title: const Text("Biblioteka")),
+          ),
+          title: const Text("Biblioteka"),
+        ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              const SizedBox(
-                height: 15.0,
-              ),
+              const SizedBox(height: 15.0),
               TextField(
                 controller: searchTextController,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: GestureDetector(
                     onTap: () {
-//setState(() {
                       FocusScope.of(context).unfocus();
                       searchTextController.clear();
-//});
                     },
                     child: const Icon(
                       Icons.clear,
@@ -64,26 +66,20 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                 ),
-                onChanged: (value) {
-// log("value of the text is $value");
-                },
-                onSubmitted: (value) {
-// log("value of the text is $value");
-// log("value of the controller text: ${searchTextController.text}");
-                },
+                onChanged: (value) {},
+                onSubmitted: (value) {},
               ),
-              const SizedBox(
-                height: 15.0,
-              ),
+              const SizedBox(height: 15.0),
               Expanded(
                 child: DynamicHeightGridView(
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    builder: (context, index) {
-                      return const ProductWidget();
-                    },
-                    itemCount: 200,
-                    crossAxisCount: 2),
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  builder: (context, index) {
+                    return const ProductWidget();
+                  },
+                  itemCount: 200,
+                  crossAxisCount: 2,
+                ),
               ),
             ],
           ),
