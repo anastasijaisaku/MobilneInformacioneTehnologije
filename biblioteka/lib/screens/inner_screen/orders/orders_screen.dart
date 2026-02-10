@@ -1,3 +1,4 @@
+import 'package:biblioteka/screens/search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:biblioteka/screens/inner_screen/orders/orders_widget.dart';
 import 'package:biblioteka/services/assets_manager.dart';
@@ -23,6 +24,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
               title: "No orders has been placed yet",
               subtitle: "",
               buttonText: "Shop now",
+              buttonAction: () {
+    Navigator.pushNamed(context, SearchScreen.routName);
+  },
             )
           : ListView.separated(
               itemCount: 15,

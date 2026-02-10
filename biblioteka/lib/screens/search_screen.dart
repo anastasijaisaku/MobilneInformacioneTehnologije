@@ -1,12 +1,15 @@
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:biblioteka/consts/app.colors.dart';
 import 'package:biblioteka/consts/app_constants.dart';
 import 'package:biblioteka/services/assets_manager.dart';
+import 'package:biblioteka/providers/products_provider.dart';
+import 'package:biblioteka/models/product_model.dart';
 import 'package:biblioteka/widgets/products/product_widget.dart';
-//import 'package:biblioteka/widgets/title_text.dart';
 
 class SearchScreen extends StatefulWidget {
+  static const routName = "/SearchScreen";
   const SearchScreen({super.key});
 
   @override
@@ -30,19 +33,21 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final productsProvider = Provider.of<ProductsProvider>(context);
+
+    final List<ProductModel> productsList = productsProvider.searchQuery(
+      searchText: searchTextController.text,
+    );
+
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
           leading: Padding(
             padding: const EdgeInsets.all(8.0),
             child: CircleAvatar(
               backgroundColor: Colors.transparent,
-              backgroundImage: AssetImage(
-                "${AssetsManager.imagePath}/logo.png",
-              ),
+              backgroundImage: AssetImage("${AssetsManager.imagePath}/logo.png"),
             ),
           ),
           title: const Text("Biblioteka"),
@@ -56,10 +61,12 @@ class _SearchScreenState extends State<SearchScreen> {
                 controller: searchTextController,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search),
+                  hintText: "Search books...",
                   suffixIcon: GestureDetector(
                     onTap: () {
                       FocusScope.of(context).unfocus();
                       searchTextController.clear();
+                      setState(() {});
                     },
                     child: const Icon(
                       Icons.clear,
@@ -67,27 +74,40 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                 ),
-                onChanged: (value) {},
-                onSubmitted: (value) {},
+                onChanged: (_) {
+                  setState(() {});
+                },
+                onSubmitted: (_) {
+                  setState(() {});
+                },
               ),
               const SizedBox(height: 15.0),
+
               Expanded(
-                child: DynamicHeightGridView(
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  builder: (context, index) {
-                    return ProductWidget(
-                      bookId: "book_search_$index",
-                      bookTitle: "Book ${index + 1}",
-                      bookImage: AppConstants.imageUrl,
-                      bookPrice: "1200 RSD",
-                      bookCategory: "Books",
-                      bookDescription: "Book description " * 6,
-                    );
-                  },
-                  itemCount: 200,
-                  crossAxisCount: 2,
-                ),
+                child: productsList.isEmpty
+                    ? const Center(
+                        child: Text("No results"),
+                      )
+                    : DynamicHeightGridView(
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                        itemCount: productsList.length,
+                        crossAxisCount: 2,
+                        builder: (context, index) {
+                          final p = productsList[index];
+
+                          return ProductWidget(
+                            bookId: p.productId,
+                            bookTitle: p.productTitle,
+                            bookImage: (p.productImage.isEmpty)
+                                ? AppConstants.imageUrl
+                                : p.productImage,
+                            bookPrice: "${p.productPrice} RSD",
+                            bookCategory: p.productCategory,
+                            bookDescription: p.productDescription,
+                          );
+                        },
+                      ),
               ),
             ],
           ),

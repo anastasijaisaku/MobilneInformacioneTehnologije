@@ -1,3 +1,4 @@
+import 'package:biblioteka/screens/search_screen.dart';
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:biblioteka/consts/app_constants.dart';
@@ -22,6 +23,9 @@ class ViewedRecentlyScreen extends StatelessWidget {
               subtitle:
                   "Looks like you haven't viewed any books yet.\nStart exploring to see them here.",
               buttonText: "Shop now",
+              buttonAction: () {
+    Navigator.pushNamed(context, SearchScreen.routName);
+  },
             ),
           )
         : Scaffold(

@@ -1,4 +1,11 @@
+import 'package:biblioteka/providers/cart_provider.dart';
+import 'package:biblioteka/providers/products_provider.dart';
+import 'package:biblioteka/providers/viewed_recently_provider.dart';
+import 'package:biblioteka/providers/wishlist_provider.dart';
+import 'package:biblioteka/screens/auth/forgot_password.dart';
+import 'package:biblioteka/screens/categories/categories_books_screen.dart';
 import 'package:biblioteka/screens/resevations/reservations_screen.dart';
+import 'package:biblioteka/screens/search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:biblioteka/consts/theme_data.dart';
@@ -14,10 +21,21 @@ import 'package:biblioteka/screens/inner_screen/viewed_recently.dart';
 import 'package:biblioteka/screens/inner_screen/wishlist.dart';
 import 'package:biblioteka/screens/loans/loans_screen.dart';
 import 'package:biblioteka/screens/root_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+
+/*void main() {
+  runApp(const MyApp());
+}*/
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -30,6 +48,21 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => LoanProvider()),
         ChangeNotifierProvider(create: (_) => ReservationProvider()),
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
+        ChangeNotifierProvider(create: (_) {
+          return ThemeProvider();
+        }),
+        ChangeNotifierProvider(create: (_) {
+          return ProductsProvider();
+        }),
+        ChangeNotifierProvider(create: (_) {
+          return CartProvider();
+        }),
+        ChangeNotifierProvider(create: (_) {
+          return WishlistProvider();
+        }),
+        ChangeNotifierProvider(create: (_) {
+          return ViewedProdProvider();
+        }),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
@@ -53,6 +86,11 @@ class MyApp extends StatelessWidget {
               LoansScreen.routName: (context) => const LoansScreen(),
               ReservationsScreen.routName: (context) =>
                   const ReservationsScreen(),
+              ForgotPasswordScreen.routeName: (context) =>
+                  const ForgotPasswordScreen(),
+              SearchScreen.routName: (context) => const SearchScreen(),
+              CategoryBooksScreen.routeName: (context) => const CategoryBooksScreen(),
+
             },
           );
         },

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:biblioteka/consts/validator.dart';
 import 'package:biblioteka/screens/auth/register.dart';
+import 'package:biblioteka/screens/auth/forgot_password.dart';
 import 'package:biblioteka/screens/root_screen.dart';
 import 'package:biblioteka/services/assets_manager.dart';
-import 'package:biblioteka/widgets/auth/google_btn.dart';
 import 'package:biblioteka/widgets/subtitle_text.dart';
 import 'package:biblioteka/widgets/title_text.dart';
 
@@ -116,7 +116,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         validator: MyValidators.passwordValidator,
                       ),
-                      const SizedBox(height: 16),
+
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(
+                              context,
+                              ForgotPasswordScreen.routeName,
+                            );
+                          },
+                          child: const SubtitleTextWidget(
+                            label: "Forgot password?",
+                            fontStyle: FontStyle.italic,
+                            textDecoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
@@ -147,8 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ElevatedButton(
                         child: const Text("Continue as Guest"),
                         onPressed: () {
-                          Navigator.pushNamed(
-                              context, RootScreen.routeName);
+                          Navigator.pushNamed(context, RootScreen.routeName);
                         },
                       ),
                     ],

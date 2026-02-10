@@ -1,9 +1,15 @@
+import 'package:biblioteka/screens/categories/categories_books_screen.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:biblioteka/consts/app.colors.dart';
 import 'package:biblioteka/consts/app_constants.dart';
+import 'package:biblioteka/providers/products_provider.dart';
 import 'package:biblioteka/services/assets_manager.dart';
+import 'package:biblioteka/widgets/products/product_widget.dart';
 import 'package:biblioteka/widgets/title_text.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -11,6 +17,12 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+
+    final productsProvider = Provider.of<ProductsProvider>(context);
+    final allProducts = productsProvider.getProducts;
+
+    // uzmi preporucene
+    final recommended = allProducts.length >= 2 ? allProducts.take(2).toList() : allProducts;
 
     return Scaffold(
       appBar: AppBar(
@@ -66,38 +78,48 @@ class HomeScreen extends StatelessWidget {
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
-                children:
-                    List.generate(AppConstants.categoriesList.length, (index) {
+                children: List.generate(AppConstants.categoriesList.length, (index) {
                   final ctg = AppConstants.categoriesList[index];
 
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: AppColors.darkPrimary.withOpacity(0.25),
-                        width: 1,
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        CategoryBooksScreen.routeName,
+                        arguments: {
+                          "categoryName": ctg.name,
+                        },
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: AppColors.darkPrimary.withOpacity(0.25),
+                          width: 1,
+                        ),
                       ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          ctg.image,
-                          height: 22,
-                          width: 22,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          ctg.name,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            ctg.image,
+                            height: 22,
+                            width: 22,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            ctg.name,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }),
@@ -112,68 +134,25 @@ class HomeScreen extends StatelessWidget {
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: 4,
+                itemCount: recommended.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
-                  childAspectRatio: 1.25,
+                  childAspectRatio: 0.58,
                 ),
                 itemBuilder: (context, index) {
-                  return Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.darkPrimary.withOpacity(0.18),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          height: 52,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            color: AppColors.darkPrimary.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.menu_book_rounded,
-                            color: AppColors.darkPrimary,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Book ${index + 1}",
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                "Author",
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: Colors.grey.shade700,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                  final p = recommended[index];
+
+                  return ProductWidget(
+                    bookId: p.productId,
+                    bookTitle: p.productTitle,
+                    bookImage: (p.productImage.isEmpty)
+                        ? AppConstants.imageUrl
+                        : p.productImage,
+                    bookPrice: "${p.productPrice} RSD",
+                    bookCategory: p.productCategory,
+                    bookDescription: p.productDescription,
                   );
                 },
               ),

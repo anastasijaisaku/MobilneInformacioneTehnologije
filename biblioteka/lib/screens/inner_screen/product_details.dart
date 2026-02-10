@@ -1,3 +1,4 @@
+import 'package:biblioteka/providers/cart_provider.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:biblioteka/consts/app.colors.dart';
@@ -29,11 +30,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
     final String bookId = (args?["bookId"] ?? "book_unknown").toString();
     final String bookTitle = (args?["bookTitle"] ?? ("Title" * 6)).toString();
-    final String bookImage =
-        (args?["bookImage"] ?? AppConstants.imageUrl).toString();
+    final String bookImage = (args?["bookImage"] ?? AppConstants.imageUrl)
+        .toString();
     final String bookPrice = (args?["bookPrice"] ?? "1550.00 RSD").toString();
-    final String bookCategory =
-        (args?["bookCategory"] ?? "Category").toString();
+    final String bookCategory = (args?["bookCategory"] ?? "Category")
+        .toString();
     final String bookDescription =
         (args?["bookDescription"] ?? ("Book description " * 10)).toString();
 
@@ -115,7 +116,30 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                       borderRadius: BorderRadius.circular(30.0),
                                     ),
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    final cartProvider =
+                                        Provider.of<CartProvider>(
+                                          context,
+                                          listen: false,
+                                        );
+
+                                    final priceOnly = bookPrice
+                                        .replaceAll("RSD", "")
+                                        .trim();
+
+                                    cartProvider.addToCart(
+                                      productId: bookId,
+                                      title: bookTitle,
+                                      price: priceOnly,
+                                      imageUrl: bookImage,
+                                    );
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Added to cart"),
+                                      ),
+                                    );
+                                  },
                                   icon: const Icon(
                                     Icons.add_shopping_cart,
                                     color: Colors.white,
@@ -234,7 +258,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   SubtitleTextWidget(label: bookDescription),
 
                   // REVIEWS SECTION
-                 
                   const SizedBox(height: 18),
 
                   Consumer<ReviewProvider>(
@@ -255,8 +278,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                   RatingStars(rating: avg, size: 18),
                                   const SizedBox(width: 6),
                                   Text(
-                                    avg == 0 ? "No rating" : avg.toStringAsFixed(1),
-                                    style: const TextStyle(fontWeight: FontWeight.w600),
+                                    avg == 0
+                                        ? "No rating"
+                                        : avg.toStringAsFixed(1),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                   const SizedBox(width: 8),
                                   Text("($count)"),
@@ -283,7 +310,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                     border: Border.all(color: Colors.black12),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
@@ -315,10 +343,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             width: double.infinity,
                             child: OutlinedButton.icon(
                               onPressed: () async {
-                                final result = await showDialog<Map<String, dynamic>>(
-                                  context: context,
-                                  builder: (_) => const _AddReviewDialog(),
-                                );
+                                final result =
+                                    await showDialog<Map<String, dynamic>>(
+                                      context: context,
+                                      builder: (_) => const _AddReviewDialog(),
+                                    );
 
                                 if (result == null) return;
 
@@ -395,9 +424,7 @@ class _AddReviewDialogState extends State<_AddReviewDialog> {
                 DropdownMenuItem(value: 1, child: Text("1 - Poor")),
               ],
               onChanged: (v) => setState(() => rating = v ?? 5),
-              decoration: const InputDecoration(
-                labelText: "Rating",
-              ),
+              decoration: const InputDecoration(labelText: "Rating"),
             ),
             const SizedBox(height: 10),
             TextField(
