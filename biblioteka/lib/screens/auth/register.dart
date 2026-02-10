@@ -1,39 +1,46 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:biblioteka/consts/validator.dart';
+import 'package:biblioteka/screens/root_screen.dart';
 import 'package:biblioteka/services/assets_manager.dart';
-import 'package:biblioteka/services/my_app_functions.dart';
-import 'package:biblioteka/widgets/auth/image_picker_widget.dart';
 import 'package:biblioteka/widgets/subtitle_text.dart';
 import 'package:biblioteka/widgets/title_text.dart';
 
 class RegisterScreen extends StatefulWidget {
-  static const routName = "/RegisterScreen";
+  static const String routName = "/RegisterScreen";
   const RegisterScreen({super.key});
+
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
   bool obscureText = true;
-  late final TextEditingController _nameController,
-      _emailController,
-      _passwordController,
-      _repeatPasswordController;
-  late final FocusNode _nameFocusNode,
-      _emailFocusNode,
-      _passwordFocusNode,
-      _repeatPasswordFocusNode;
+  bool obscureText2 = true;
+  bool _isLoading = false;
+
+  late final TextEditingController _nameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  late final TextEditingController _repeatPasswordController;
+
+  late final FocusNode _nameFocusNode;
+  late final FocusNode _emailFocusNode;
+  late final FocusNode _passwordFocusNode;
+  late final FocusNode _repeatPasswordFocusNode;
+
   final _formkey = GlobalKey<FormState>();
-  XFile? _pickedImage;
+
   @override
   void initState() {
     _nameController = TextEditingController();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
     _repeatPasswordController = TextEditingController();
-    // Focus Nodes
+
     _nameFocusNode = FocusNode();
     _emailFocusNode = FocusNode();
     _passwordFocusNode = FocusNode();
@@ -43,127 +50,152 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
-    if (mounted) {
-      _nameController.dispose();
-      _emailController.dispose();
-      _passwordController.dispose();
-      _repeatPasswordController.dispose();
-      // Focus Nodes
-      _nameFocusNode.dispose();
-      _emailFocusNode.dispose();
-      _passwordFocusNode.dispose();
-      _repeatPasswordFocusNode.dispose();
-    }
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _repeatPasswordController.dispose();
+
+    _nameFocusNode.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _repeatPasswordFocusNode.dispose();
     super.dispose();
   }
 
-  Future<void> _registerFCT() async {
-    final isValid = _formkey.currentState!.validate();
-    FocusScope.of(context).unfocus();
+  void _showSnack(String msg) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  Future<void> localImagePicker() async {
-    final ImagePicker imagePicker = ImagePicker();
-    await MyAppFunctions.imagePickerDialog(
-      context: context,
-      cameraFCT: () async {
-        _pickedImage = await imagePicker.pickImage(source: ImageSource.camera);
-        setState(() {});
-      },
-      galleryFCT: () async {
-        _pickedImage = await imagePicker.pickImage(source: ImageSource.gallery);
-        setState(() {});
-      },
-      removeFCT: () {
-        setState(() {
-          _pickedImage = null;
+  Future<void> _registerFct() async {
+    final isValid = _formkey.currentState?.validate() ?? false;
+    FocusScope.of(context).unfocus();
+    if (!isValid) return;
+
+    if (_passwordController.text.trim() !=
+        _repeatPasswordController.text.trim()) {
+      _showSnack("Passwords do not match.");
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // 1) AUTH (ovo mora da prođe)
+      final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      final user = cred.user;
+      if (user == null) {
+        _showSnack("User not created. Try again.");
+        return;
+      }
+
+      await user.updateDisplayName(_nameController.text.trim());
+
+      // 2) FIRESTORE (ovo NE SME da blokira aplikaciju)
+      try {
+        await FirebaseFirestore.instance.collection("users").doc(user.uid).set({
+          "uid": user.uid,
+          "name": _nameController.text.trim(),
+          "email": _emailController.text.trim(),
+          "role": "user",
+          "isAdmin": false,
+          "createdAt": FieldValue.serverTimestamp(),
         });
-      },
-    );
+      } catch (e) {
+        // Ako Firestore padne, korisnik je i dalje registrovan (Auth),
+        // samo obavesti da profil nije upisan.
+        _showSnack("Account created, but profile save failed (Firestore).");
+      }
+
+      if (!mounted) return;
+
+      // 3) NAVIGACIJA (uvek posle Auth)
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        RootScreen.routeName,
+        (route) => false,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      String msg = "Sign up failed.";
+      if (e.code == "email-already-in-use") msg = "Email is already in use.";
+      if (e.code == "invalid-email") msg = "Invalid email address.";
+      if (e.code == "weak-password") msg = "Password is too weak.";
+      _showSnack(msg);
+    } catch (_) {
+      if (!mounted) return;
+      _showSnack("Something went wrong. Try again.");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: SingleChildScrollView(
             child: Column(
               children: [
-                // const BackButton(),
-                const SizedBox(height: 60),
+                const SizedBox(height: 45),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // ✅ IZMENJENO: okrugao logo
                     CircleAvatar(
-                      radius: 30,
+                      radius: 26,
                       backgroundColor: Colors.transparent,
-                      backgroundImage: AssetImage(
-                        "${AssetsManager.imagePath}/logo.png",
-                      ),
+                      backgroundImage:
+                          AssetImage("${AssetsManager.imagePath}/logo.png"),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
                     const Text(
                       "Biblioteka",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 16),
                 const Align(
                   alignment: Alignment.centerLeft,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TitelesTextWidget(label: "Welcome back!"),
-                      SubtitleTextWidget(label: "Your welcome message"),
-                    ],
-                  ),
+                  child: TitelesTextWidget(label: "Create account"),
                 ),
-                const SizedBox(height: 30),
-                SizedBox(
-                  height: size.width * 0.3,
-                  width: size.width * 0.3,
-                  child: PickImageWidget(
-                    pickedImage: _pickedImage,
-                    function: () async {
-                      await localImagePicker();
-                    },
-                  ),
+                const SizedBox(height: 8),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: SubtitleTextWidget(label: "Enter your details below"),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 16),
                 Form(
                   key: _formkey,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       TextFormField(
                         controller: _nameController,
                         focusNode: _nameFocusNode,
                         textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.name,
                         decoration: const InputDecoration(
-                          hintText: 'Full Name',
-                          prefixIcon: Icon(Icons.person),
+                          hintText: "Full name",
+                          prefixIcon: Icon(IconlyLight.profile),
                         ),
-                        onFieldSubmitted: (value) {
+                        validator: (value) {
+                          final v = (value ?? "").trim();
+                          if (v.isEmpty) return "Name is required";
+                          if (v.length < 2) return "Name is too short";
+                          return null;
+                        },
+                        onFieldSubmitted: (_) {
                           FocusScope.of(context).requestFocus(_emailFocusNode);
                         },
-                        validator: (value) {
-                          return MyValidators.displayNamevalidator(value);
-                        },
                       ),
-                      const SizedBox(height: 16.0),
+                      const SizedBox(height: 14),
                       TextFormField(
                         controller: _emailController,
                         focusNode: _emailFocusNode,
@@ -173,94 +205,75 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           hintText: "Email address",
                           prefixIcon: Icon(IconlyLight.message),
                         ),
-                        onFieldSubmitted: (value) {
-                          FocusScope.of(context)
-                              .requestFocus(_passwordFocusNode);
-                        },
-                        validator: (value) {
-                          return MyValidators.emailValidator(value);
+                        validator: MyValidators.emailValidator,
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(context).requestFocus(_passwordFocusNode);
                         },
                       ),
-                      const SizedBox(height: 16.0),
+                      const SizedBox(height: 14),
                       TextFormField(
                         controller: _passwordController,
                         focusNode: _passwordFocusNode,
                         textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.visiblePassword,
                         obscureText: obscureText,
                         decoration: InputDecoration(
-                          hintText: "***********",
+                          hintText: "Password",
                           prefixIcon: const Icon(IconlyLight.lock),
                           suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                obscureText = !obscureText;
-                              });
-                            },
-                            icon: Icon(
-                              obscureText
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
+                            icon: Icon(obscureText
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            onPressed: () =>
+                                setState(() => obscureText = !obscureText),
                           ),
                         ),
-                        onFieldSubmitted: (value) async {
+                        validator: MyValidators.passwordValidator,
+                        onFieldSubmitted: (_) {
                           FocusScope.of(context)
                               .requestFocus(_repeatPasswordFocusNode);
                         },
-                        validator: (value) {
-                          return MyValidators.passwordValidator(value);
-                        },
                       ),
-                      const SizedBox(height: 16.0),
+                      const SizedBox(height: 14),
                       TextFormField(
                         controller: _repeatPasswordController,
                         focusNode: _repeatPasswordFocusNode,
                         textInputAction: TextInputAction.done,
-                        keyboardType: TextInputType.visiblePassword,
-                        obscureText: obscureText,
+                        obscureText: obscureText2,
                         decoration: InputDecoration(
                           hintText: "Repeat password",
                           prefixIcon: const Icon(IconlyLight.lock),
                           suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                obscureText = !obscureText;
-                              });
-                            },
-                            icon: Icon(
-                              obscureText
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
+                            icon: Icon(obscureText2
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            onPressed: () =>
+                                setState(() => obscureText2 = !obscureText2),
                           ),
                         ),
-                        onFieldSubmitted: (value) async {
-                          await _registerFCT();
-                        },
                         validator: (value) {
-                          return MyValidators.repeatPasswordValidator(
-                            value: value,
-                            password: _passwordController.text,
-                          );
+                          final v = (value ?? "").trim();
+                          if (v.isEmpty) return "Repeat password";
+                          return null;
                         },
+                        onFieldSubmitted: (_) => _registerFct(),
                       ),
-                      const SizedBox(height: 36.0),
+                      const SizedBox(height: 18),
                       SizedBox(
                         width: double.infinity,
+                        height: 48,
                         child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.all(12.0),
-                            // backgroundColor: Colors.red,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                          ),
-                          icon: const Icon(IconlyLight.addUser),
-                          label: const Text("Sign up"),
-                          onPressed: () async {
-                            await _registerFCT();
-                          },
+                          icon: _isLoading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(Icons.person_add_alt_1),
+                          label: Text(_isLoading ? "Creating..." : "Sign up"),
+                          onPressed: _isLoading ? null : _registerFct,
                         ),
                       ),
                     ],
