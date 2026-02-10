@@ -1,20 +1,32 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
+
 import 'package:biblioteka/consts/app_constants.dart';
 import 'package:biblioteka/widgets/subtitle_text.dart';
 import 'package:biblioteka/widgets/title_text.dart';
 
-class OrdersWidget extends StatefulWidget {
-  const OrdersWidget({super.key});
-  @override
-  State<OrdersWidget> createState() => _OrdersWidgetState();
-}
+class OrdersWidget extends StatelessWidget {
+  final Map<String, dynamic> orderData;
+  const OrdersWidget({super.key, required this.orderData});
 
-class _OrdersWidgetState extends State<OrdersWidget> {
-  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+
+    final String status = (orderData["status"] ?? "created").toString();
+
+    final num totalPriceNum = (orderData["totalPrice"] as num?) ?? 0;
+    final int totalItems = (orderData["totalItems"] as num?)?.toInt() ?? 0;
+    final int totalProducts = (orderData["totalProducts"] as num?)?.toInt() ?? 0;
+
+    final List items = (orderData["items"] as List?) ?? const [];
+    final Map firstItem = items.isNotEmpty ? (items.first as Map) : {};
+
+    final String title = (firstItem["title"] ?? "Order").toString();
+    final String imageUrlRaw = (firstItem["imageUrl"] ?? "").toString();
+    final String imageUrl =
+        imageUrlRaw.trim().isEmpty ? AppConstants.imageUrl : imageUrlRaw.trim();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       child: Row(
@@ -24,7 +36,7 @@ class _OrdersWidgetState extends State<OrdersWidget> {
             child: FancyShimmerImage(
               height: size.width * 0.25,
               width: size.width * 0.25,
-              imageUrl: AppConstants.imageUrl,
+              imageUrl: imageUrl,
             ),
           ),
           Flexible(
@@ -33,32 +45,18 @@ class _OrdersWidgetState extends State<OrdersWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Flexible(
-                        child: TitelesTextWidget(
-                          label: 'productTitle',
-                          maxLines: 2,
-                          fontSize: 15,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.clear,
-                          color: Colors.red,
-                          size: 22,
-                        ),
-                      ),
-                    ],
+                  TitelesTextWidget(
+                    label: title,
+                    maxLines: 2,
+                    fontSize: 15,
                   ),
-                  const Row(
+                  const SizedBox(height: 6),
+                  Row(
                     children: [
-                      TitelesTextWidget(label: 'Price: ', fontSize: 15),
+                      const TitelesTextWidget(label: 'Total: ', fontSize: 15),
                       Flexible(
                         child: SubtitleTextWidget(
-                          label: "11.99 \$",
+                          label: "${totalPriceNum.toStringAsFixed(0)} RSD",
                           fontSize: 15,
                           color: Colors.blue,
                         ),
@@ -66,8 +64,15 @@ class _OrdersWidgetState extends State<OrdersWidget> {
                     ],
                   ),
                   const SizedBox(height: 5),
-                  const SubtitleTextWidget(label: "Qty: 10", fontSize: 15),
+                  SubtitleTextWidget(
+                    label: "Items: $totalProducts products / $totalItems items",
+                    fontSize: 14,
+                  ),
                   const SizedBox(height: 5),
+                  SubtitleTextWidget(
+                    label: "Status: $status",
+                    fontSize: 14,
+                  ),
                 ],
               ),
             ),

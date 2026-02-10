@@ -10,9 +10,24 @@ import 'package:biblioteka/services/assets_manager.dart';
 import 'package:biblioteka/widgets/products/product_widget.dart';
 import 'package:biblioteka/widgets/title_text.dart';
 
-
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _loaded = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_loaded) {
+      Provider.of<ProductsProvider>(context, listen: false).fetchProducts();
+      _loaded = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +35,8 @@ class HomeScreen extends StatelessWidget {
 
     final productsProvider = Provider.of<ProductsProvider>(context);
     final allProducts = productsProvider.getProducts;
-
-    // uzmi preporucene
-    final recommended = allProducts.length >= 2 ? allProducts.take(2).toList() : allProducts;
+    final recommended =
+        allProducts.length >= 4 ? allProducts.take(4).toList() : allProducts;
 
     return Scaffold(
       appBar: AppBar(
@@ -30,9 +44,7 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
             backgroundColor: Colors.transparent,
-            backgroundImage: AssetImage(
-              "${AssetsManager.imagePath}/logo.png",
-            ),
+            backgroundImage: AssetImage("${AssetsManager.imagePath}/logo.png"),
           ),
         ),
         title: const Text("Biblioteka"),
@@ -45,7 +57,6 @@ class HomeScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 12),
 
-              // BANNERS
               SizedBox(
                 height: size.height * 0.25,
                 child: ClipRRect(
@@ -71,14 +82,14 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 18),
 
-              // CATEGORIES
               const TitelesTextWidget(label: "Categories"),
               const SizedBox(height: 12),
 
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
-                children: List.generate(AppConstants.categoriesList.length, (index) {
+                children:
+                    List.generate(AppConstants.categoriesList.length, (index) {
                   final ctg = AppConstants.categoriesList[index];
 
                   return InkWell(
@@ -87,13 +98,12 @@ class HomeScreen extends StatelessWidget {
                       Navigator.pushNamed(
                         context,
                         CategoryBooksScreen.routeName,
-                        arguments: {
-                          "categoryName": ctg.name,
-                        },
+                        arguments: {"categoryName": ctg.name},
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
                       decoration: BoxDecoration(
                         color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(14),
@@ -105,11 +115,7 @@ class HomeScreen extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Image.asset(
-                            ctg.image,
-                            height: 22,
-                            width: 22,
-                          ),
+                          Image.asset(ctg.image, height: 22, width: 22),
                           const SizedBox(width: 8),
                           Text(
                             ctg.name,
@@ -127,37 +133,36 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 22),
 
-              // RECOMMENDED
               const TitelesTextWidget(label: "Recommended"),
               const SizedBox(height: 12),
 
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: recommended.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.58,
+              if (allProducts.isEmpty)
+                const Center(child: CircularProgressIndicator())
+              else
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: recommended.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 0.72,
+                  ),
+                  itemBuilder: (context, index) {
+                    final p = recommended[index];
+                    return ProductWidget(
+                      bookId: p.productId,
+                      bookTitle: p.productTitle,
+                      bookImage: p.productImage.isEmpty
+                          ? AppConstants.imageUrl
+                          : p.productImage,
+                      bookPrice: "${p.productPrice} RSD",
+                      bookCategory: p.productCategory,
+                      bookDescription: p.productDescription,
+                    );
+                  },
                 ),
-                itemBuilder: (context, index) {
-                  final p = recommended[index];
-
-                  return ProductWidget(
-                    bookId: p.productId,
-                    bookTitle: p.productTitle,
-                    bookImage: (p.productImage.isEmpty)
-                        ? AppConstants.imageUrl
-                        : p.productImage,
-                    bookPrice: "${p.productPrice} RSD",
-                    bookCategory: p.productCategory,
-                    bookDescription: p.productDescription,
-                  );
-                },
-              ),
-
-              const SizedBox(height: 18),
             ],
           ),
         ),

@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      // OVO je bitno: idi na Root i skloni Login sa stack-a
+      
       Navigator.of(context).pushNamedAndRemoveUntil(
         RootScreen.routeName,
         (route) => false,
@@ -76,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 
-      // najčešće poruke (možeš dodati još)
+     
       String msg = "Login failed.";
       if (e.code == "user-not-found") msg = "No user found for that email.";
       if (e.code == "wrong-password") msg = "Wrong password.";

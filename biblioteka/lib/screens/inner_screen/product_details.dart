@@ -21,6 +21,17 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  String _priceOnly(String priceText) {
+    final cleaned = priceText
+        .toLowerCase()
+        .replaceAll("rsd", "")
+        .replaceAll(RegExp(r'[^0-9\.,]'), '')
+        .replaceAll(",", ".")
+        .trim();
+
+    return cleaned.isEmpty ? "0" : cleaned;
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -29,14 +40,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
 
     final String bookId = (args?["bookId"] ?? "book_unknown").toString();
-    final String bookTitle = (args?["bookTitle"] ?? ("Title" * 6)).toString();
-    final String bookImage = (args?["bookImage"] ?? AppConstants.imageUrl)
-        .toString();
-    final String bookPrice = (args?["bookPrice"] ?? "1550.00 RSD").toString();
-    final String bookCategory = (args?["bookCategory"] ?? "Category")
-        .toString();
+    final String bookTitle = (args?["bookTitle"] ?? "Title").toString();
+
+    final String rawImage = (args?["bookImage"] ?? "").toString();
+    final String bookImage =
+        rawImage.trim().isEmpty ? AppConstants.imageUrl : rawImage.trim();
+
+    final String bookPrice = (args?["bookPrice"] ?? "0 RSD").toString();
+    final String bookCategory = (args?["bookCategory"] ?? "Category").toString();
     final String bookDescription =
-        (args?["bookDescription"] ?? ("Book description " * 10)).toString();
+        (args?["bookDescription"] ?? "Book description").toString();
 
     final loanProvider = Provider.of<LoanProvider>(context);
     final bool alreadyBorrowed = loanProvider.isBookBorrowed(bookId);
@@ -64,6 +77,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               imageUrl: bookImage,
               height: size.height * 0.38,
               width: double.infinity,
+              boxFit: BoxFit.cover,
             ),
             const SizedBox(height: 20),
             Padding(
@@ -105,7 +119,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             ),
                             const SizedBox(width: 12),
 
-                            // BUY
+                            // BUY -> add to cart
                             Expanded(
                               child: SizedBox(
                                 height: kBottomNavigationBarHeight - 10,
@@ -116,29 +130,31 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                       borderRadius: BorderRadius.circular(30.0),
                                     ),
                                   ),
-                                  onPressed: () {
+                                  onPressed: () async {
                                     final cartProvider =
                                         Provider.of<CartProvider>(
-                                          context,
-                                          listen: false,
-                                        );
+                                      context,
+                                      listen: false,
+                                    );
 
-                                    final priceOnly = bookPrice
-                                        .replaceAll("RSD", "")
-                                        .trim();
+                                    final priceOnly = _priceOnly(bookPrice);
 
-                                    cartProvider.addToCart(
+                                    await cartProvider.addToCart(
                                       productId: bookId,
                                       title: bookTitle,
                                       price: priceOnly,
                                       imageUrl: bookImage,
                                     );
 
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("Added to cart"),
-                                      ),
-                                    );
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .clearSnackBars();
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Added to cart ✅"),
+                                        ),
+                                      );
+                                    }
                                   },
                                   icon: const Icon(
                                     Icons.add_shopping_cart,
@@ -278,9 +294,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                   RatingStars(rating: avg, size: 18),
                                   const SizedBox(width: 6),
                                   Text(
-                                    avg == 0
-                                        ? "No rating"
-                                        : avg.toStringAsFixed(1),
+                                    avg == 0 ? "No rating" : avg.toStringAsFixed(1),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -310,8 +324,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                     border: Border.all(color: Colors.black12),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
@@ -345,22 +358,24 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               onPressed: () async {
                                 final result =
                                     await showDialog<Map<String, dynamic>>(
-                                      context: context,
-                                      builder: (_) => const _AddReviewDialog(),
-                                    );
+                                  context: context,
+                                  builder: (_) => const _AddReviewDialog(),
+                                );
 
                                 if (result == null) return;
 
                                 reviewProvider.addReview(
                                   bookId: bookId,
-                                  userName: result["name"] as String,
-                                  rating: result["rating"] as int,
-                                  comment: result["comment"] as String,
+                                  userName: (result["name"] as String?) ?? "",
+                                  rating: (result["rating"] as int?) ?? 5,
+                                  comment: (result["comment"] as String?) ?? "",
                                 );
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text("Review added")),
-                                );
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Review added ✅")),
+                                  );
+                                }
                               },
                               icon: const Icon(Icons.rate_review_outlined),
                               label: const Text("Write a review"),
@@ -448,7 +463,7 @@ class _AddReviewDialogState extends State<_AddReviewDialog> {
             if (comment.isEmpty) return;
 
             Navigator.pop(context, {
-              "name": nameCtrl.text,
+              "name": nameCtrl.text.trim(),
               "rating": rating,
               "comment": comment,
             });

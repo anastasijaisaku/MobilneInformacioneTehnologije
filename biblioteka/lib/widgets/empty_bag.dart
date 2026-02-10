@@ -17,50 +17,60 @@ class EmptyBagWidget extends StatelessWidget {
   final String title;
   final String subtitle;
   final String buttonText;
-  final VoidCallback buttonAction; 
+  final VoidCallback buttonAction;
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Image.asset(
-          imagePath,
-          width: double.infinity,
-          height: size.height * 0.20,
-        ),
-        const SizedBox(height: 20),
+    return SafeArea(
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                imagePath,
+                width: double.infinity,
+                height: size.height * 0.20,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 20),
 
-        TitelesTextWidget(label: title),
+              TitelesTextWidget(label: title),
 
-        const SizedBox(height: 20),
+              const SizedBox(height: 12),
 
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-            child: SubtitleTextWidget(
-              label: subtitle,
-              textAlign: TextAlign.center,
-            ),
+              SubtitleTextWidget(
+                label: subtitle,
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 20),
+
+              SizedBox(
+                width: 160,
+                height: 42,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    backgroundColor: AppColors.darkPrimary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: buttonAction,
+                  child: Text(
+                    buttonText,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-
-        const SizedBox(height: 20),
-
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            backgroundColor: AppColors.darkPrimary,
-          ),
-          onPressed: buttonAction, 
-          child: Text(
-            buttonText,
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

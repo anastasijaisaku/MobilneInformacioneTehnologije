@@ -43,7 +43,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           centerTitle: true,
           leading: IconButton(
             onPressed: () {
-// Navigator.canPop(context) ? Navigator.pop(context) : null;
               if (Navigator.canPop(context)) {
                 Navigator.pop(context);
               }
@@ -53,19 +52,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               size: 20,
             ),
           ),
-// automaticallyImplyLeading: false,
-          title: const Text("FTN Script Store")),
+          title: const Text("Biblioteka")),
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
         },
         child: SafeArea(
           child: ListView(
-// shrinkWrap: true,
             padding: const EdgeInsets.symmetric(horizontal: 24),
             physics: const BouncingScrollPhysics(),
             children: [
-// Section 1 - Header
               const SizedBox(
                 height: 10,
               ),
@@ -121,7 +117,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.all(12),
-// backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                         10,

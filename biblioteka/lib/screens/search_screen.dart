@@ -1,6 +1,7 @@
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:biblioteka/consts/app.colors.dart';
 import 'package:biblioteka/consts/app_constants.dart';
 import 'package:biblioteka/services/assets_manager.dart';
@@ -21,8 +22,19 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   void initState() {
-    searchTextController = TextEditingController();
     super.initState();
+    searchTextController = TextEditingController();
+
+    // ✅ Ucitaj knjige iz Firestore čim ekran krene (jednom)
+    Future.microtask(() async {
+      final productsProvider =
+          Provider.of<ProductsProvider>(context, listen: false);
+
+      // Ako već ima liste (npr. prethodno učitano), ne mora opet
+      if (productsProvider.getProducts.isEmpty) {
+        await productsProvider.fetchProducts();
+      }
+    });
   }
 
   @override
@@ -51,6 +63,17 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
           title: const Text("Biblioteka"),
+          actions: [
+            IconButton(
+              tooltip: "Refresh",
+              onPressed: () async {
+                FocusScope.of(context).unfocus();
+                await productsProvider.fetchProducts();
+                if (mounted) setState(() {});
+              },
+              icon: const Icon(Icons.refresh),
+            ),
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -74,40 +97,36 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                 ),
-                onChanged: (_) {
-                  setState(() {});
-                },
-                onSubmitted: (_) {
-                  setState(() {});
-                },
+                onChanged: (_) => setState(() {}),
+                onSubmitted: (_) => setState(() {}),
               ),
               const SizedBox(height: 15.0),
 
               Expanded(
-                child: productsList.isEmpty
-                    ? const Center(
-                        child: Text("No results"),
-                      )
-                    : DynamicHeightGridView(
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        itemCount: productsList.length,
-                        crossAxisCount: 2,
-                        builder: (context, index) {
-                          final p = productsList[index];
+                child: productsProvider.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : productsList.isEmpty
+                        ? const Center(child: Text("No results"))
+                        : DynamicHeightGridView(
+                            mainAxisSpacing: 12,
+                            crossAxisSpacing: 12,
+                            itemCount: productsList.length,
+                            crossAxisCount: 2,
+                            builder: (context, index) {
+                              final p = productsList[index];
 
-                          return ProductWidget(
-                            bookId: p.productId,
-                            bookTitle: p.productTitle,
-                            bookImage: (p.productImage.isEmpty)
-                                ? AppConstants.imageUrl
-                                : p.productImage,
-                            bookPrice: "${p.productPrice} RSD",
-                            bookCategory: p.productCategory,
-                            bookDescription: p.productDescription,
-                          );
-                        },
-                      ),
+                              return ProductWidget(
+                                bookId: p.productId,
+                                bookTitle: p.productTitle,
+                                bookImage: (p.productImage.isEmpty)
+                                    ? AppConstants.imageUrl
+                                    : p.productImage,
+                                bookPrice: "${p.productPrice} RSD",
+                                bookCategory: p.productCategory,
+                                bookDescription: p.productDescription,
+                              );
+                            },
+                          ),
               ),
             ],
           ),
